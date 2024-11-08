@@ -33,7 +33,7 @@ public class BoardController {
     public String boardWritePro(Board board, Model model) {
         boardService.write(board);
         model.addAttribute("message", "글 작성이 완료되었습니다.");
-        model.addAttribute("searchUrl", "/board/list");
+        model.addAttribute("searchUrl", "/board/view?id=" + board.getId());
         return "message"; // "message.html" 템플릿 파일을 반환
     }
 
@@ -58,7 +58,7 @@ public class BoardController {
 
         return "boardmodify";
     }
-    //게시글 업데
+    //게시글 업데이트
     @PostMapping("/board/update/{id}")
     public String boardUpdate(@PathVariable("id") int id, Board board){
         Board boardTemp =boardService.boardView(id);// 기존 내용 가져오기
@@ -66,7 +66,7 @@ public class BoardController {
         boardTemp.setContent(board.getContent()); //덮어 싀우기
 
         boardService.write(boardTemp);
-        return "redirect:/board/list";
+        return "redirect:/board/view?id=" + id;
     }
 
 }
