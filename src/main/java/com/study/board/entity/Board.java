@@ -1,5 +1,6 @@
 package com.study.board.entity;
 
+import com.study.board.user.SiteUser;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -26,5 +27,8 @@ public class Board {
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE)
     private List<Comment> CommentList;
+
+    @ManyToOne
+    private SiteUser author;
 }
 

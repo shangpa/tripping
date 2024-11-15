@@ -26,14 +26,12 @@
                             <h3 th:text="${board.title}">게시글 제목</h3>
                             <p th:text="${board.content}">게시글 내용</p>
 
-                            <!--
-                             TODO: 조회수, 닉네임 구현
-                             조회수 닉네임 아직 미구현-->
-                            <!--<div class="post-info">
-                                <span th:text="${board.viewCount}">조회수</span> |
-                                <span th:text="${#dates.format(board.createdDate, 'yyyy-MM-dd')}">작성날짜</span> |
-                                <span th:text="${board.nickname}">닉네임</span>
-                            </div>-->
+                            <div class="post-info">
+                                <!-- 조회수 미구현
+                                <span th:text="${board.viewCount}">조회수</span> |-->
+                                <span th:if="${board.date != null}" th:text="${#dates.format(board.date, 'yyyy-MM-dd')}">작성날짜</span> |
+                                <span th:if="${board.author != null}" th:text="${board.author.username}">닉네임</span>
+                            </div>
                         </a>
                     </div>
                     <div class="post-image">

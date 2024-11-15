@@ -1,18 +1,23 @@
 package com.study.board.contoller;
 import com.study.board.entity.Board;
 import com.study.board.service.BoardService;
+import com.study.board.user.SiteUser;
+import com.study.board.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+import java.security.Principal;
 @Controller
 public class BoardController {
     @Autowired
     private BoardService boardService;
+    @Autowired
+    private UserService userService;
 
     //게시글 리스트
     @GetMapping("/board/list")
@@ -23,17 +28,27 @@ public class BoardController {
     }
 
     //게시글작성
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/board/write")
     public String boardWriteForm(){
         return "boardwrite";
     }
 
     //게시글 작성완료
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/board/writepro")
-    public String boardWritePro(Board board, Model model) {
+    public String boardWritePro(Board board, Model model, Principal principal) {
+        // 로그인한 사용자의 SiteUser 객체를 가져옴
+        SiteUser siteUser = this.userService.getUser(principal.getName());
+
+        board.setAuthor(siteUser);
+        // 게시글을 저장
         boardService.write(board);
+
+        // 작성 완료 메시지와 리다이렉트 URL 설정
         model.addAttribute("message", "글 작성이 완료되었습니다.");
         model.addAttribute("searchUrl", "/board/view?id=" + board.getId());
+
         return "message"; // "message.html" 템플릿 파일을 반환
     }
 

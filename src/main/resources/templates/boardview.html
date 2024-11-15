@@ -30,7 +30,7 @@
         게시글 이미지 아직 구현안함
         <img src="/images/beach.png" alt="게시글 이미지" class="post-image">-->
         <div class="post-info">
-            <span>작성일: </span>
+            <span th:if="${board.author != null}" th:text="${board.author.username}"></span> |
             <span th:text="${#dates.format(board.date, 'yyyy-MM-dd')}">2024-01-01</span>
         </div>
         <div class="post-content">
@@ -51,10 +51,18 @@
             </div>
         </div>
     </div>
-    <div>
-        <ul>
-            <li th:each="comment : ${board.commentList}" th:text="${comment.content}"></li>
-        </ul>
+    <div class="comment-list">
+        <div class="comment-header" th:each="comment : ${board.commentList}" >
+
+            <!-- 작성자 이미지 미구현
+            <img src="../profile.png" alt="작성자1 사진" class="comment-author-img">-->
+            <div class="comment-details">
+                <div class="comment-author" th:if="${comment.author != null}" th:text="${comment.author.username}">작성자1</div>
+                <div class="comment-text">
+                    <p  th:text="${comment.content}">이것은 댓글입니다. 댓글의 내용이 여기에 표시됩니다.</p>
+                </div>
+            </div>
+        </div>
     </div>
     <form class="comment-form" th:action="@{|/comment/create/${board.id}|}" method="POST">
         <textarea name="content" placeholder="댓글을 작성하세요..." rows="4"></textarea>

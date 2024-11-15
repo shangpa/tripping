@@ -1,5 +1,6 @@
 package com.study.board.entity;
 
+import com.study.board.user.SiteUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,4 +22,6 @@ public class Comment {
     private LocalDateTime createDate;
     @ManyToOne
     private Board board;
+    @ManyToOne
+    private SiteUser author;
 }
