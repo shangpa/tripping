@@ -62,4 +62,16 @@ public class UserController {
     public String login() {
         return "login_form";
     }
+
+    //이거슨 메인
+    @GetMapping("/main")
+    public String mainPage(Model model) {
+        // 게시글 목록을 DB에서 가져옴
+        //List<Board> hotPosts = boardRepository.findAll(); // DB에서 게시글 목록을 가져오기
+
+        // 모델에 게시글 목록 추가
+        //model.addAttribute("hotPosts", hotPosts);
+
+        return "/main"; // main 페이지로 이동
+    }
 }
