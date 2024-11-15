@@ -74,4 +74,12 @@ public class UserController {
 
         return "/main"; // main 페이지로 이동
     }
+
+    @GetMapping("/faq")
+    public String faq() {
+        return "faq";
+    }
+
+    @GetMapping("/edit")
+    public String edit() {return "edit";}
 }
