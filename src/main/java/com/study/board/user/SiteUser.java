@@ -19,5 +19,17 @@ public class SiteUser {
 
     private String password;
 
+    private String nickname;
+
+    private String phone;
+
     private String email;
+
+    private String name;
+
+    private String birthdate;
+
+    public SiteUser() {
+
+    }
 }

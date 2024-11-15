@@ -20,36 +20,39 @@ public class UserController {
 
     @GetMapping("/signup")
     public String signup(UserCreateForm userCreateForm) {
-        return "signup_form";
+        return "join";
     }
 
     @PostMapping("/signup")
     public String signup(@Valid UserCreateForm userCreateForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "signup_form";
+            return "join";
         }
         if (userCreateForm.getPassword1().isEmpty() || userCreateForm.getPassword2().isEmpty()) {
             bindingResult.rejectValue("password1", "passwordEmpty", "비밀번호는 빈칸일 수 없습니다.");
             bindingResult.rejectValue("password2", "passwordEmpty", "비밀번호 확인은 빈칸일 수 없습니다.");
-            return "signup_form";
+            return "join";
         }
 
         if (!userCreateForm.getPassword1().equals(userCreateForm.getPassword2())) {
             bindingResult.rejectValue("password2", "passwordInCorrect",
                     "2개의 패스워드가 일치하지 않습니다.");
-            return "signup_form";
+            return "join";
         }
         try {
             userService.create(userCreateForm.getUsername(),
-                    userCreateForm.getEmail(), userCreateForm.getPassword1());
+                    userCreateForm.getEmail(), userCreateForm.getPassword1(),userCreateForm.getNickname(),   // 추가된 필드
+                    userCreateForm.getPhone(),      // 추가된 필드
+                    userCreateForm.getName(),       // 추가된 필드
+                    userCreateForm.getBirthdate()); // 추가된 필드);
         }catch(DataIntegrityViolationException e) {
             e.printStackTrace();
             bindingResult.reject("signupFailed", "이미 등록된 사용자입니다.");
-            return "signup_form";
+            return "join";
         }catch(Exception e) {
             e.printStackTrace();
             bindingResult.reject("signupFailed", e.getMessage());
-            return "signup_form";
+            return "/signup";
         }
 
         return "redirect:/user/login";
