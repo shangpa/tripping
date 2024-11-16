@@ -176,6 +176,7 @@ a {
 }
 
 .form-container {
+    position: relative;
     width: 350px;
     margin: 50px auto;
     background-color: #fff;
@@ -183,6 +184,7 @@ a {
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    padding-bottom: 70px; /* 하단 여유 공간 추가 */
 }
 
 .profile-pic {
@@ -277,4 +279,23 @@ button {
 
 button:hover {
     background-color: #47779e;
+}
+
+.delete-button {
+    position: absolute;
+    width: 100px;
+    right: 10px;   /* 폼의 오른쪽 끝에 위치 */
+    bottom: 20px;  /* 폼의 하단에서 20px 위에 위치 */
+    padding: 10px 20px;
+    border: 2px solid #ff4d4d;
+    background-color: transparent;
+    color: #ff4d4d;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.delete-button:hover {
+    background-color: #ff4d4d;
+    color: white;
 }
