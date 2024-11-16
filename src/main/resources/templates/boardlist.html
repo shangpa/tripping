@@ -15,9 +15,8 @@
         <div class="content-container">
             <div class="content-header">
                 <h2>게시판 제목</h2>
-                <button class="create-post-button">
-                    <a href="/board/write">새 글 작성</a>
-                </button>
+                <button class="create-post-button" onclick="location.href='/board/write'">새 글 작성</button>
+
             </div>
             <div class="post-list" th:each="board, loop : ${paging}">
                 <div class="post-item">
