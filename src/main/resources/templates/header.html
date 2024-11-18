@@ -7,8 +7,11 @@
                 </a>
             </div>
             <div class="search-bar-container">
-                <input type="text" class="search-bar" placeholder="검색어 입력">
-                <span class="search-icon"><img src="/images/search.png" alt=""></span>
+                <input type="text" id="search_kw" class="search-bar" placeholder="검색어 입력" th:value="${kw}">
+                <button class="btn btn-outline-secondary" type="button" id="btn_search">
+                    <span class="search-icon"><img src="/images/search.png" alt=""></span>
+                </button>
+
             </div>
             <div class="user-icons">
                 <div class="bell-icon"><a href="../알림/notification.html">
