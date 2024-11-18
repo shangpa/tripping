@@ -7,6 +7,8 @@ import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import java.util.Date;
+import java.util.Set;
+
 import jakarta.persistence.OneToMany;
 @Data
 @Entity
@@ -30,5 +32,8 @@ public class Board {
 
     @ManyToOne
     private SiteUser author;
+
+    @ManyToMany
+    Set<SiteUser> voter;
 }
 

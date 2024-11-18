@@ -1,6 +1,7 @@
 package com.study.board.service;
 
 import com.study.board.entity.Board;
+import com.study.board.user.SiteUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.study.board.repository.BoardRepository;
@@ -41,5 +42,9 @@ public class BoardService {
         } else {
             throw new DataNotFoundException("board not found");
         }
+    }
+    public void vote(Board board, SiteUser siteUser) {
+        board.getVoter().add(siteUser);
+        this.boardRepository.save(board);
     }
 }

@@ -89,5 +89,13 @@ public class BoardController {
         boardService.write(boardTemp);
         return "redirect:/board/view?id=" + id;
     }
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/vote/{id}")
+    public String questionVote(Principal principal, @PathVariable("id") Integer id) {
+        Board question = this.boardService.getBoard(id);
+        SiteUser siteUser = this.userService.getUser(principal.getName());
+        this.boardService.vote(question, siteUser);
+        return String.format("redirect:/board/view?id=%d", id);
+    }
 
 }
