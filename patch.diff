@@ -1,0 +1,230 @@
+From 4e9919961b9c8fd4dbb66503faceb1974d3f20f2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=28=EC=9C=A0=EB=82=98=29DESKTOP-VVFOHLM=5C=EA=B0=95?=
+ =?UTF-8?q?=EB=B3=B4=EC=9B=90?= <wannaturi@gmail.com>
+Date: Tue, 19 Nov 2024 12:36:35 +0900
+Subject: [PATCH] =?UTF-8?q?Revert=20"=EA=B2=8C=EC=8B=9C=EA=B8=80=20?=
+ =?UTF-8?q?=EC=9D=B4=EB=AF=B8=EC=A7=80=20=EC=B2=A8=EB=B6=80(=EB=AF=B8?=
+ =?UTF-8?q?=EC=99=84)"?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This reverts commit 29d751f1eacd7e85a3828fc04f045ded54147e48.
+---
+ .../com/study/board/config/WebConfig.java     | 19 ------------
+ .../board/contoller/BoardController.java      | 29 +------------------
+ .../java/com/study/board/entity/Board.java    |  4 ---
+ src/main/resources/application.properties     |  7 -----
+ src/main/resources/templates/boardlist.html   |  5 ++--
+ src/main/resources/templates/boardmodify.html |  4 ---
+ src/main/resources/templates/boardview.html   |  7 +++--
+ src/main/resources/templates/boardwrite.html  |  4 +--
+ src/main/resources/templates/error.html       | 12 --------
+ 9 files changed, 8 insertions(+), 83 deletions(-)
+ delete mode 100644 src/main/java/com/study/board/config/WebConfig.java
+ delete mode 100644 src/main/resources/templates/error.html
+
+diff --git a/src/main/java/com/study/board/config/WebConfig.java b/src/main/java/com/study/board/config/WebConfig.java
+deleted file mode 100644
+index 0571913..0000000
+--- a/src/main/java/com/study/board/config/WebConfig.java
++++ /dev/null
+@@ -1,19 +0,0 @@
+-package com.study.board.config;
+-
+-import org.springframework.context.annotation.Configuration;
+-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+-
+-@Configuration
+-public class WebConfig implements WebMvcConfigurer {
+-    @Override
+-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+-        // 업로드된 이미지 경로
+-        registry.addResourceHandler("/uploaded-images/**")
+-                .addResourceLocations("file:///C:/upload/images/");
+-
+-        // 정적 리소스 경로
+-        registry.addResourceHandler("/**")
+-                .addResourceLocations("classpath:/static/");
+-    }
+-}
+diff --git a/src/main/java/com/study/board/contoller/BoardController.java b/src/main/java/com/study/board/contoller/BoardController.java
+index 3d25df9..781d1b6 100644
+--- a/src/main/java/com/study/board/contoller/BoardController.java
++++ b/src/main/java/com/study/board/contoller/BoardController.java
+@@ -10,11 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
+ import org.springframework.stereotype.Controller;
+ import org.springframework.ui.Model;
+ import org.springframework.web.bind.annotation.*;
+-import org.springframework.web.multipart.MultipartFile;
+ import org.springframework.web.server.ResponseStatusException;
+ 
+-import java.io.File;
+-import java.io.IOException;
+ import java.util.List;
+ import java.security.Principal;
+ @Controller
+@@ -43,34 +40,10 @@ public class BoardController {
+     //게시글 작성완료
+     @PreAuthorize("isAuthenticated()")
+     @PostMapping("/board/writepro")
+-    public String boardWritePro(Board board, @RequestParam("image") MultipartFile image, Model model, Principal principal) {
++    public String boardWritePro(Board board, Model model, Principal principal) {
+         // 로그인한 사용자의 SiteUser 객체를 가져옴
+         SiteUser siteUser = this.userService.getUser(principal.getName());
+ 
+-        if (!image.isEmpty()) {
+-            try {
+-                // 이미지 저장 경로 설정 (예: static 폴더 내 images 디렉토리)
+-                String saveDir = "C:/upload/images/";
+-                String fileName = image.getOriginalFilename();
+-                File file = new File(saveDir, fileName);
+-
+-                // 디렉터리 생성 확인
+-                if (!file.getParentFile().exists()) {
+-                    file.getParentFile().mkdirs();
+-                }
+-
+-                // 파일 저장
+-                image.transferTo(file);
+-
+-                // 이미지 경로를 Board 객체에 저장
+-                board.setImagePath("/uploaded-images/" + fileName);
+-            } catch (IOException e) {
+-                e.printStackTrace();
+-                model.addAttribute("message", "이미지 업로드 중 문제가 발생했습니다.");
+-                return "error";
+-            }
+-        }
+-
+         board.setAuthor(siteUser);
+         // 게시글을 저장
+         boardService.write(board);
+diff --git a/src/main/java/com/study/board/entity/Board.java b/src/main/java/com/study/board/entity/Board.java
+index 8e07738..a0555ff 100644
+--- a/src/main/java/com/study/board/entity/Board.java
++++ b/src/main/java/com/study/board/entity/Board.java
+@@ -23,10 +23,6 @@ public class Board {
+     private String content;
+ 
+     private Date date;
+-
+-    @Column
+-    private String imagePath; // 이미지 경로 추가
+-
+     public Board() {
+         this.date = new Date(); // 게시글 생성 시 현재 날짜로 설정
+     }
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index 945dc33..738f068 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -7,11 +7,4 @@ spring.datasource.password=1234
+ spring.jpa.hibernate.ddl-auto=update
+ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+ 
+-spring.servlet.multipart.enabled=true
+-spring.servlet.multipart.max-file-size=5MB
+-spring.servlet.multipart.max-request-size=10MB
+-
+-file.upload.dir=C:/upload/images
+-
+-
+ spring.mvc.static-path-pattern=/**
+\ No newline at end of file
+diff --git a/src/main/resources/templates/boardlist.html b/src/main/resources/templates/boardlist.html
+index c375d87..1a7fc3f 100644
+--- a/src/main/resources/templates/boardlist.html
++++ b/src/main/resources/templates/boardlist.html
+@@ -33,9 +33,8 @@
+                             </div>
+                         </a>
+                     </div>
+-                    <div class="post-image" th:if="${board.imagePath != null}">
+-                        <img th:src="@{/uploaded-images/{fileName}(fileName=${board.imagePath})}" alt="첨부 이미지">
+-
++                    <div class="post-image">
++                        <img src="image.jpg" alt="게시글 이미지">
+                     </div>
+                 </div>
+             </div>
+diff --git a/src/main/resources/templates/boardmodify.html b/src/main/resources/templates/boardmodify.html
+index fadac62..2570df5 100644
+--- a/src/main/resources/templates/boardmodify.html
++++ b/src/main/resources/templates/boardmodify.html
+@@ -34,10 +34,6 @@
+           <textarea id="content" name="content" th:text="${board.content}"></textarea>
+         </div>
+       </div>
+-      <label for="image">이미지 첨부</label>
+-      <input type="file" id="image" name="image" accept="image/*">
+-      </div>
+-      </div>
+       <hr class="title-underline">
+       <div class="form-buttons">
+         <button type="button" class="cancel-button" onclick="history.back();">취소</button>
+diff --git a/src/main/resources/templates/boardview.html b/src/main/resources/templates/boardview.html
+index b1df5fa..98de534 100644
+--- a/src/main/resources/templates/boardview.html
++++ b/src/main/resources/templates/boardview.html
+@@ -27,12 +27,13 @@
+ 
+         </div>
+ 
++        <!--
++        TODO: 게시글 이미지 구현
++        게시글 이미지 아직 구현안함
++        <img src="/images/beach.png" alt="게시글 이미지" class="post-image">-->
+         <div class="post-info">
+             <span th:if="${board.author != null}" th:text="${board.author.username}"></span> |
+             <span th:text="${#dates.format(board.date, 'yyyy-MM-dd')}">2024-01-01</span>
+-        </div><br>
+-        <div th:if="${board.imagePath != null}">
+-            <img th:src="@{/uploaded-images/{fileName}(fileName=${board.imagePath})}" alt="첨부 이미지">
+         </div>
+         <div class="post-content">
+             <pre th:utext="${board.content}"></pre>
+diff --git a/src/main/resources/templates/boardwrite.html b/src/main/resources/templates/boardwrite.html
+index 33bca95..3645de9 100644
+--- a/src/main/resources/templates/boardwrite.html
++++ b/src/main/resources/templates/boardwrite.html
+@@ -15,7 +15,7 @@
+     <div class="post-container layout">
+         <h1>게시글 작성</h1>
+         <hr class="title-underline">
+-        <form action="/board/writepro" method="post" enctype="multipart/form-data">
++        <form action="/board/writepro" method="post">
+             <div class="form-group">
+                 <label for="title">제목</label>
+                 <input type="text" id="title" name="title" placeholder="제목 입력">
+@@ -32,8 +32,6 @@
+                     </div>
+                     <textarea id="content" name="content" placeholder="내용 입력"></textarea>
+                 </div>
+-                    <label for="image">이미지 첨부</label>
+-                    <input type="file" id="image" name="image" accept="image/*">
+             </div>
+             <hr class="title-underline">
+             <div class="form-buttons">
+diff --git a/src/main/resources/templates/error.html b/src/main/resources/templates/error.html
+deleted file mode 100644
+index bb1e55f..0000000
+--- a/src/main/resources/templates/error.html
++++ /dev/null
+@@ -1,12 +0,0 @@
+-<!DOCTYPE html>
+-<html lang="ko">
+-<head>
+-    <meta charset="UTF-8">
+-    <title>오류 발생</title>
+-</head>
+-<body>
+-<h1>오류가 발생했습니다</h1>
+-<p th:text="${message}">문제가 발생했습니다.</p>
+-<a href="/board/list">목록으로 돌아가기</a>
+-</body>
+-</html>
+-- 
+2.46.0.windows.1
+
