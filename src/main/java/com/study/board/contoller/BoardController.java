@@ -5,10 +5,12 @@ import com.study.board.user.SiteUser;
 import com.study.board.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.security.Principal;
@@ -21,9 +23,10 @@ public class BoardController {
 
     //게시글 리스트
     @GetMapping("/board/list")
-    public String list(Model model, @RequestParam(value="page", defaultValue="0") int page) {
-        Page<Board> paging = this.boardService.getList(page);
+    public String list(Model model, @RequestParam(value="page", defaultValue="0") int page,@RequestParam(value="kw", defaultValue="") String kw) {
+        Page<Board> paging = this.boardService.getList(page,kw);
         model.addAttribute("paging", paging);
+        model.addAttribute("kw", kw);
         return "boardList";
     }
 
@@ -74,14 +77,26 @@ public class BoardController {
         return "boardmodify";
     }
     //게시글 업데이트
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/board/update/{id}")
-    public String boardUpdate(@PathVariable("id") int id, Board board){
+    public String boardUpdate(@PathVariable("id") int id, Board board,Principal principal){
         Board boardTemp =boardService.boardView(id);// 기존 내용 가져오기
+        if (!boardTemp.getAuthor().getUsername().equals(principal.getName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수정권한이 없습니다.");
+        }
         boardTemp.setTitle(board.getTitle()); //덮어 싀우기
         boardTemp.setContent(board.getContent()); //덮어 싀우기
 
         boardService.write(boardTemp);
         return "redirect:/board/view?id=" + id;
+    }
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/vote/{id}")
+    public String questionVote(Principal principal, @PathVariable("id") Integer id) {
+        Board question = this.boardService.getBoard(id);
+        SiteUser siteUser = this.userService.getUser(principal.getName());
+        this.boardService.vote(question, siteUser);
+        return String.format("redirect:/board/view?id=%d", id);
     }
 
 }
