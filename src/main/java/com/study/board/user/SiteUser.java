@@ -30,6 +30,10 @@ public class SiteUser {
 
     private String birthdate;
 
+    private String intro;
+
+    private String gender;
+
     @Column(nullable = false)
     private String address; // address 필드 추가
 
@@ -42,10 +46,20 @@ public class SiteUser {
         this.phone = phone;
         this.name = name;
         this.birthdate = birthdate;
-        this.address = address;
+        this.address = address; // address 필드 초기화
     }
 
     // 기본 생성자
     public SiteUser() {
     }
+
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
 }

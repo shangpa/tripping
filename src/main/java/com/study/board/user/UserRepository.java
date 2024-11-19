@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<SiteUser, Long> {
 
     // 사용자 이름이 존재하는지 확인하는 메서드
     boolean existsByUsername(String username);
+
+    SiteUser findByUsername(String username);
 }
