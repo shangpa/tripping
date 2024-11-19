@@ -23,10 +23,6 @@ public class Board {
     private String content;
 
     private Date date;
-
-    @Column
-    private String imagePath; // 이미지 경로 추가
-
     public Board() {
         this.date = new Date(); // 게시글 생성 시 현재 날짜로 설정
     }

@@ -33,9 +33,8 @@
                             </div>
                         </a>
                     </div>
-                    <div class="post-image" th:if="${board.imagePath != null}">
-                        <img th:src="@{/uploaded-images/{fileName}(fileName=${board.imagePath})}" alt="첨부 이미지">
-
+                    <div class="post-image">
+                        <img src="image.jpg" alt="게시글 이미지">
                     </div>
                 </div>
             </div>

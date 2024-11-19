@@ -27,12 +27,13 @@
 
         </div>
 
+        <!--
+        TODO: 게시글 이미지 구현
+        게시글 이미지 아직 구현안함
+        <img src="/images/beach.png" alt="게시글 이미지" class="post-image">-->
         <div class="post-info">
             <span th:if="${board.author != null}" th:text="${board.author.username}"></span> |
             <span th:text="${#dates.format(board.date, 'yyyy-MM-dd')}">2024-01-01</span>
-        </div><br>
-        <div th:if="${board.imagePath != null}">
-            <img th:src="@{/uploaded-images/{fileName}(fileName=${board.imagePath})}" alt="첨부 이미지">
         </div>
         <div class="post-content">
             <pre th:utext="${board.content}"></pre>

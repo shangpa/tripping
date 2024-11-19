@@ -10,11 +10,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.security.Principal;
 @Controller
@@ -43,33 +40,9 @@ public class BoardController {
     //게시글 작성완료
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/board/writepro")
-    public String boardWritePro(Board board, @RequestParam("image") MultipartFile image, Model model, Principal principal) {
+    public String boardWritePro(Board board, Model model, Principal principal) {
         // 로그인한 사용자의 SiteUser 객체를 가져옴
         SiteUser siteUser = this.userService.getUser(principal.getName());
-
-        if (!image.isEmpty()) {
-            try {
-                // 이미지 저장 경로 설정 (예: static 폴더 내 images 디렉토리)
-                String saveDir = "C:/upload/images/";
-                String fileName = image.getOriginalFilename();
-                File file = new File(saveDir, fileName);
-
-                // 디렉터리 생성 확인
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                }
-
-                // 파일 저장
-                image.transferTo(file);
-
-                // 이미지 경로를 Board 객체에 저장
-                board.setImagePath("/uploaded-images/" + fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                model.addAttribute("message", "이미지 업로드 중 문제가 발생했습니다.");
-                return "error";
-            }
-        }
 
         board.setAuthor(siteUser);
         // 게시글을 저장
