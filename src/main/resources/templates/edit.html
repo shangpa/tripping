@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Page</title>
+    <link rel="stylesheet" href="/css/edit.css">
+</head>
+<body>
+<!-- header -->
+<div th:insert="~{header :: header}">
+</div>
+
+<main>
+    <div class="form-container">
+        <form id="profileForm">
+            <div class="profile-pic">
+                <img src="/images/profile.png" alt="프로필 사진" id="profileImage">
+                <input type="file" id="fileInput" style="display: none;">
+                <label for="fileInput">
+                    <i class="edit-icon">✏️</i>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="nickname">닉네임</label>
+                <input type="text" id="nickname" name="nickname" placeholder="닉네임 입력">
+            </div>
+
+            <div class="form-group">
+                <label for="intro">소개</label>
+                <input type="text" id="intro" name="intro" placeholder="소개 입력">
+            </div>
+
+            <div class="form-group">
+                <label for="name">이름</label>
+                <input type="text" id="name" name="name" placeholder="이름 입력">
+            </div>
+
+            <!-- 생년월일 필드를 가로로 배치 -->
+            <div class="form-group birthdate-group">
+                <label for="birthdate">생년월일</label>
+                <div class="birthdate-selects">
+                    <select id="year" name="year">
+                        <option value="">년</option>
+                        <!-- 연도 옵션 추가 예정 -->
+                    </select>
+                    <select id="month" name="month">
+                        <option value="">월</option>
+                        <!-- 월 옵션 추가 예정 -->
+                    </select>
+                    <select id="day" name="day">
+                        <option value="">일</option>
+                        <!-- 일 옵션 추가 예정 -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="gender">성별</label>
+                <select id="gender" name="gender">
+                    <option value="">선택</option>
+                    <option value="male">남성</option>
+                    <option value="female">여성</option>
+                </select>
+            </div>
+
+            <button type="button" onclick="saveProfile()">저장</button>
+        </form>
+
+    </div>
+    <button type="button" class="delete-button" onclick="deleteAccount()">탈퇴</button>
+</main>
+
+<script src="edit.js"></script>
+</body>
+</html>

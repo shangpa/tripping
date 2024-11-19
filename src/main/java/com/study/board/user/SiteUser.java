@@ -1,13 +1,14 @@
 package com.study.board.user;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @Entity
 public class SiteUser {
     @Id
@@ -19,5 +20,32 @@ public class SiteUser {
 
     private String password;
 
+    private String nickname;
+
+    private String phone;
+
     private String email;
+
+    private String name;
+
+    private String birthdate;
+
+    @Column(nullable = false)
+    private String address; // address 필드 추가
+
+    // 사용자 정보를 초기화하는 생성자
+    public SiteUser(String username, String email, String password, String nickname, String phone, String name, String birthdate) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+        this.phone = phone;
+        this.name = name;
+        this.birthdate = birthdate;
+        this.address = address;
+    }
+
+    // 기본 생성자
+    public SiteUser() {
+    }
 }
