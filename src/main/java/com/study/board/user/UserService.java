@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,41 @@ public class UserService {
     }
 
     public SiteUser getUser(String username) {
-        return userRepository.findByusername(username)
-                .orElseThrow(() -> new DataIntegrityViolationException("사용자를 찾을 수 없습니다."));
+        SiteUser user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new DataNotFoundException("사용자를 찾을 수 없습니다.");
+        }
+        return user;
     }
+
+
+    public void updateUser(SiteUser siteUser) {
+        userRepository.save(siteUser); // 수정된 사용자 정보를 저장
+    }
+
+    public SiteUser validateUser(String username, String password) {
+        // 데이터베이스에서 사용자 검색 (null 처리)
+        SiteUser user = userRepository.findByUsername(username);
+
+        // 사용자와 비밀번호 검증
+        if (user != null && passwordEncoder.matches(password, user.getPassword())) {
+            return user; // 비밀번호가 일치하면 사용자 반환
+        } else {
+            return null; // 유효하지 않은 경우 null 반환
+        }
+    }
+
+
+
+    public SiteUser getCurrentUser(String username) {
+        SiteUser user = userRepository.findByUsername(username);
+        if (user == null) {
+            throw new DataNotFoundException("현재 사용자를 찾을 수 없습니다.");
+        }
+        return user;
+    }
+
+
+
+
 }
