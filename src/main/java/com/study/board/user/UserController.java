@@ -11,10 +11,14 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Controller
@@ -87,28 +91,24 @@ public class UserController {
 
     @GetMapping("/edit")
     public String editUser(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        // 로그인되지 않은 경우 로그인 페이지로 리다이렉트
         if (userDetails == null) {
             return "redirect:/user/login";
         }
 
-        // 현재 로그인된 사용자 정보 가져오기
-        SiteUser user = userService.getCurrentUser(userDetails.getUsername()); // userService를 통해 사용자 정보 조회
+        SiteUser user = userService.getCurrentUser(userDetails.getUsername());
         if (user == null) {
-            return "redirect:/user/login"; // 유효하지 않은 사용자일 경우
+            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
         }
 
-        // 사용자 정보를 모델에 추가
         model.addAttribute("user", user);
+        model.addAttribute("intro", Optional.ofNullable(user.getIntro()).orElse("자기소개를 입력하세요."));
 
-        // 사용자 소개 추가 (null 체크)
-        String intro = user.getIntro() != null ? user.getIntro() : "자기소개를 입력하세요."; // 기본값 설정
-        model.addAttribute("intro", intro);
+        // 생년월일을 LocalDate로 처리하려면 birthdate 필드를 LocalDate로 변경
+        LocalDate birthdate = user.getBirthdate(); // 이미 LocalDate이면 그대로 사용
+        model.addAttribute("birthdate", birthdate);
 
         return "edit"; // edit.html 페이지로 리턴
     }
-
-
 
     @PostMapping("/edit")
     public String edit(@Valid UserCreateForm userCreateForm, BindingResult bindingResult, Model model, @AuthenticationPrincipal UserDetails userDetails) {
@@ -117,18 +117,34 @@ public class UserController {
         }
 
         try {
-            // 로그인한 사용자의 정보를 업데이트
+            // 로그인한 사용자의 정보를 가져옴
             String username = userDetails.getUsername();
             SiteUser siteUser = userService.getUser(username);
 
-            // userCreateForm을 사용하여 정보를 업데이트
+            // 생년월일 조합
+            try {
+                // getYear(), getMonth(), getDay()가 int 형일 경우 String으로 변환
+                String year = String.valueOf(userCreateForm.getYear());
+                String month = String.format("%02d", userCreateForm.getMonth()); // 두 자리로 포맷
+                String day = String.format("%02d", userCreateForm.getDay()); // 두 자리로 포맷
+
+                String birthdateString = year + "-" + month + "-" + day;
+                LocalDate birthdate = LocalDate.parse(birthdateString);  // 문자열을 LocalDate로 변환
+                siteUser.setBirthdate(birthdate); // birthdate는 LocalDate 타입이어야 하므로, birthdate를 set
+            } catch (DateTimeParseException e) {
+                bindingResult.rejectValue("birthdate", "invalidBirthdate", "올바른 생년월일 형식을 입력하세요.");
+                return "edit";
+            }
+
+
+
+            // 기타 정보 업데이트
             siteUser.setNickname(userCreateForm.getNickname());
             siteUser.setPhone(userCreateForm.getPhone());
             siteUser.setName(userCreateForm.getName());
-            siteUser.setBirthdate(userCreateForm.getBirthdate());
             siteUser.setAddress(userCreateForm.getAddress()); // address 필드 추가
 
-            // 수정된 정보를 DB에 저장
+            // 수정된 정보를 저장
             userService.updateUser(siteUser);
 
             model.addAttribute("message", "회원정보가 업데이트되었습니다.");
@@ -140,4 +156,47 @@ public class UserController {
         return "redirect:/user/main"; // 성공 시 메인 페이지로 리다이렉트
     }
 
+    @PostMapping("/uploadProfile")
+    public String uploadProfileImage(@RequestParam("profileImage") MultipartFile file,
+                                     @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (!file.isEmpty()) {
+            String username = userDetails.getUsername();
+            try {
+                byte[] imageBytes = file.getBytes(); // 파일을 byte[]로 변환
+                userService.updateProfileImage(username, imageBytes); // DB에 이미지 저장
+                model.addAttribute("message", "프로필 이미지가 성공적으로 업로드되었습니다.");
+            } catch (IOException e) {
+                e.printStackTrace();
+                model.addAttribute("message", "파일 업로드 중 오류가 발생했습니다.");
+                return "edit";
+            }
+        }
+        return "redirect:/user/edit"; // 업로드 후 사용자 편집 페이지로 리다이렉트
+    }
+
+    //이거슨 탈퇴
+    @DeleteMapping("/delete")
+    public String deleteAccount(@AuthenticationPrincipal UserDetails userDetails, HttpSession session) {
+        try {
+            String username = userDetails.getUsername();
+            //userService.deleteUser(username);  // 삭제 처리
+            session.invalidate();  // 세션 종료
+            return "redirect:/user/signup";  // 회원가입 페이지로 리다이렉트
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/user/edit";  // 삭제 실패 시 편집 페이지로 리다이렉트
+        }
+    }
+
+    @GetMapping("/profileImage/{username}")
+    @ResponseBody
+    public byte[] getProfileImage(@PathVariable String username) {
+        SiteUser user = userService.getUser(username);
+
+        if (user.getProfileImage() == null) {
+            throw new IllegalArgumentException("프로필 이미지가 없습니다.");
+        }
+
+        return user.getProfileImage(); // 이미지를 반환
+    }
 }

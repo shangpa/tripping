@@ -2,6 +2,7 @@ package com.study.board.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -28,7 +29,8 @@ public class SiteUser {
 
     private String name;
 
-    private String birthdate;
+    @Column(nullable = false)
+    private LocalDate birthdate;
 
     private String intro;
 
@@ -37,29 +39,39 @@ public class SiteUser {
     @Column(nullable = false)
     private String address; // address 필드 추가
 
-    // 사용자 정보를 초기화하는 생성자
-    public SiteUser(String username, String email, String password, String nickname, String phone, String name, String birthdate) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.phone = phone;
-        this.name = name;
-        this.birthdate = birthdate;
-        this.address = address; // address 필드 초기화
-    }
+    @Lob // 대용량 데이터 저장을 위한 어노테이션
+    private byte[] profileImage;
 
+    // Getter, Setter 추가
+    public byte[] getProfileImage() {
+        return profileImage;
+    }
+    public void setProfileImage(byte[] profileImage) {
+        this.profileImage = profileImage;
+    }
     // 기본 생성자
     public SiteUser() {
     }
 
+    // 생성자에서 필요한 부분만
+    public static SiteUser from(UserCreateForm userCreateForm, PasswordEncoder passwordEncoder) {
+        LocalDate birthdate = userCreateForm.getBirthdateAsLocalDate();  // LocalDate로 변환된 생년월일 사용
+        if (birthdate == null) {
+            // 예외 처리나 기본 값 설정 등을 할 수 있습니다.
+            throw new IllegalArgumentException("Invalid birthdate");
+        }
 
-    public String getIntro() {
-        return intro;
+        return SiteUser.builder()
+                .username(userCreateForm.getUsername())
+                .email(userCreateForm.getEmail())
+                .password(passwordEncoder.encode(userCreateForm.getPassword1()))
+                .nickname(userCreateForm.getNickname())
+                .phone(userCreateForm.getPhone())
+                .name(userCreateForm.getName())
+                .birthdate(birthdate)
+                .address(userCreateForm.getAddress())
+                .build();
     }
 
-    public void setIntro(String intro) {
-        this.intro = intro;
-    }
 
 }

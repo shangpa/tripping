@@ -8,6 +8,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.DateTimeException;
+import java.time.LocalDate;
+
 @Getter
 @Setter
 public class UserCreateForm {
@@ -36,10 +39,29 @@ public class UserCreateForm {
     @NotEmpty(message = "이름은 필수항목입니다.")
     private String name;
 
+    // 연도, 월, 일 필드 추가
     @NotEmpty(message = "생년월일은 필수항목입니다.")
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "생년월일은 yyyy-MM-dd 형식이어야 합니다.")
-    private String birthdate;
+    private String year;  // 연도
+    private String month; // 월
+    private String day;   // 일
 
     @NotEmpty(message = "거주지는 필수항목입니다.")
     private String address;
+
+    // 생년월일을 LocalDate로 반환하는 메서드 추가
+    public LocalDate getBirthdateAsLocalDate() {
+        if (year != null && !year.isEmpty() && month != null && !month.isEmpty() && day != null && !day.isEmpty()) {
+            try {
+                // month와 day가 1자리일 경우 2자리로 변환
+                int monthValue = Integer.parseInt(month);
+                int dayValue = Integer.parseInt(day);
+
+                // LocalDate.of()로 LocalDate 객체 생성
+                return LocalDate.of(Integer.parseInt(year), monthValue, dayValue);
+            } catch (NumberFormatException | DateTimeException e) {
+                return null; // 숫자 파싱 실패나 유효하지 않은 날짜일 경우 null 반환
+            }
+        }
+        return null; // year, month, day가 모두 유효하지 않으면 null 반환
+    }
 }
